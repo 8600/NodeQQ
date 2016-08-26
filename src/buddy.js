@@ -1,8 +1,8 @@
-var qqface = require('./qqface');
-var client = require('../libs/httpclient');
+const qqface = require('./qqface');
+const client = require('../libs/httpclient');
 
 exports.sendBuddyMsg = function (uin, msg, cb) {
-    var params = {
+    let params = {
         r: JSON.stringify({
             to: uin,
             face: 522,

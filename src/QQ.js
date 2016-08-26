@@ -1,19 +1,13 @@
-var fs = require('fs');
+const file = require('fs');
+const login = require('./login');
+const poll = require('./poll');
 
-
-var login = require('./login');
-var poll = require('./poll');
-
+//QQ登陆全局配置
 global.appid = 501004106;
 global.clientid  = 53999199;
-global.font = {
-    'name': '宋体',
-    'size': 10,
-    'style': [0, 0, 0],
-    'color':  '000000'
-}
+global.font = {'name': '宋体','size': 10,'style': [0, 0, 0],'color':  '000000'};
 
-var QQ = module.exports = function () {
+let QQ = module.exports = function () {
     this.auth_options = {};
     this.toPoll = false;
     this.cookie = null;
@@ -24,10 +18,10 @@ var QQ = module.exports = function () {
 };
 
 QQ.prototype.Login = function (cb) {
-    var self = this;
-    fs.exists('./cookie.data', function (isExist) {
+    //检查是否有缓存
+    file.exists('./cookie.data', function (isExist) {
         if (isExist) {
-            fs.readFile('./cookie.data', 'utf-8', function (err, data) {
+            file.readFile('./cookie.data', 'utf-8', function (err, data) {
                 login._Login(data, function(){
                     poll.startPoll();
                 });

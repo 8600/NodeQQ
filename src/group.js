@@ -1,30 +1,29 @@
-var qqface = require('./qqface');
-var client = require('../libs/httpclient');
-
-var isWodi = false;
+const qqface = require('./qqface');
+const client = require('../libs/httpclient');
 
 function hashU(x, K) {
     x += "";
-    for (var N = [], T = 0; T < K.length; T++) N[T % 4] ^= K.charCodeAt(T);
-    var U = ["EC", "OK"],
+    let N = [];
+    for ( T = 0; T < K.length; T++) N[T % 4] ^= K.charCodeAt(T);
+    let U = ["EC", "OK"],
     V = [];
     V[0] = x >> 24 & 255 ^ U[0].charCodeAt(0);
     V[1] = x >> 16 & 255 ^ U[0].charCodeAt(1);
     V[2] = x >> 8 & 255 ^ U[1].charCodeAt(0);
     V[3] = x & 255 ^ U[1].charCodeAt(1);
     U = [];
-    for (T = 0; T < 8; T++) U[T] = T % 2 == 0 ? N[T >> 1] : V[T >> 1];
+    for (T = 0; T < 8; T++) U[T] = T % 2 === 0 ? N[T >> 1] : V[T >> 1];
     N = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
     V = "";
     for (T = 0; T < U.length; T++) {
         V += N[U[T] >> 4 & 15];
-        V += N[U[T] & 15]
+        V += N[U[T] & 15];
     }
     return V;
-};
+}
 
 exports.sendGroupMsg = function (uin, msg, cb) {
-    var params = {
+    let params = {
         r: JSON.stringify({
             group_uin: uin,
             content: qqface.getFaceContent(msg),
@@ -34,10 +33,8 @@ exports.sendGroupMsg = function (uin, msg, cb) {
         })
     };
 
-    client.post({
-        url: 'http://d1.web2.qq.com/channel/send_qun_msg2'
-    }, params, function(ret) {
-        cb && cb(ret);
+    client.post({url: 'http://d1.web2.qq.com/channel/send_qun_msg2'}, params, function(ret) {
+        //cb && cb(ret);
     });
 };
 
@@ -53,9 +50,7 @@ exports.getGroupCode = function (code, cb) {
         })
     };
 
-    client.post({
-        url: 'http://s.web2.qq.com/api/get_group_name_list_mask2'
-    }, params, function (ret) {
+    client.post({url: 'http://s.web2.qq.com/api/get_group_name_list_mask2'}, params, function (ret) {
         var data = ret.result.gnamelist;
         for (var i in data) {
             var item  = _.pick(data[i], ['code', 'flag', 'gid', 'name']);
@@ -85,31 +80,17 @@ exports.getGroupInfo = function (code, cb) {
         cb(err, data);
     });
 };
-
+//判断并回复群里@你的人的消息
 exports.groupHandle = function (msg) {
-    var self = this;
-    var isAt = msg.content.indexOf('@' + global.auth_options.nickname);
-    if (isAt > -1) {
-        var val = '';
-        if (isAt === 1) {
-            val = msg.content[3];
-        }
-        else {
-            val = msg.content[1] + msg.content[4];
-        }
-
-        // if (val.match('开始谁是卧底(.+?)人局') && !isNaN(val.match('开始谁是卧底(.+?)人局')[1])){
-        //     isWodi = true;
-        // }
-        // else if (val.match('退出谁是卧底')){
-        //     isWodi = false;
-        // }
-        // else {
-        var tuling = 'http://www.tuling123.com/openapi/api?key=873ba8257f7835dfc537090fa4120d14&info=' + encodeURI(val.trim());
-        client.url_get(tuling, function(err, res, info) {
-            self.sendGroupMsg(msg.group_code, JSON.parse(info).text);
-        });
-        // }
-        
+    let self = this;
+    let isAt = msg.content.indexOf('@' + global.auth_options.nickname);
+    switch (isAt) {
+        case -1:return;
+        case  1:val = msg.content[3];break;
+        default:val = msg.content[1] + msg.content[4];
     }
-}
+    let tuling = 'http://www.tuling123.com/openapi/api?key=873ba8257f7835dfc537090fa4120d14&info=' + encodeURI(val.trim());
+    client.url_get(tuling, function(err, res, info) {
+        self.sendGroupMsg(msg.group_code, JSON.parse(info).text);
+    });
+};
