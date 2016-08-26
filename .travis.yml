@@ -1,7 +1,0 @@
-language: node_js
-before_script:
-  - npm install --save
-node_js:
-  - "6"
-  - "6.1"
-  - "5.11"
