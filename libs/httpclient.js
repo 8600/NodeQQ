@@ -1,63 +1,61 @@
-var _ = require('lodash');
-var https = require("https");
-var http = require('http');
-var querystring = require('querystring');
-var URL = require('url');
+const _ = require('lodash');
+const https = require("https");
+const http = require('http');
+const querystring = require('querystring');
+const URL = require('url');
 
-var all_cookies = [];
-
-var z = 0;
-var q = Date.now();
+let all_cookies = [];
+let z = 0;
+let q = Date.now();
 q = (q - q % 1E3) / 1E3;
 q = q % 1E4 * 1E4;
-
-var nextMsgId = function () {
+let nextMsgId = function () {
     z++;
     return q + z;
-}
+};
 
-var get_cookies = function() {
+let get_cookies = function() {
     return all_cookies;
 };
 
-var get_cookies_string = function() {
-    var cookie_map = {};
+let get_cookies_string = function() {
+    let cookie_map = {};
     all_cookies.forEach(function (ck) {
-        var v = ck.split(' ')[0];
-        var kv = v.trim().split('=');
+        let v = ck.split(' ')[0];
+        let kv = v.trim().split('=');
         if(kv[1]!=';') cookie_map[kv[0]] = kv[1];
     });
-    var cks = [];
-    for(var k in cookie_map) {
+    let cks = [];
+    for(let k in cookie_map) {
         cks.push(k + '=' + cookie_map[k]);
     }
     return cks.join(' ');
 };
 
-var set_cookies = function(cks) {
-    var ck = [];
+let set_cookies = function(cks) {
+    let ck = [];
     cks.replace('; ,', ';,').split(';,').forEach(function (item, i) {
         if (i != cks.split(';,').length - 1) item += ';';
         ck.push(item);
     });
-    update_cookies(ck)
+    update_cookies(ck);
 };
 
-var update_cookies = function(cks) {
+let update_cookies = function(cks) {
     if (cks) {
         all_cookies = _.union(all_cookies, cks);
     }
 };
 
-var global_cookies = function(cookie) {
+let global_cookies = function(cookie) {
   if (cookie) {
       update_cookies(cookie);
   }
   return get_cookies();
 };
 
-var url_get = function(url_or_options, callback, pre_callback) {
-    var http_or_https = http;
+let url_get = function(url_or_options, callback, pre_callback) {
+    let http_or_https = http;
 
     if( ((typeof url_or_options === 'string') && (url_or_options.indexOf('https:') === 0)) || ((typeof url_or_options === 'object') && (url_or_options.protocol === 'https:')) )
         http_or_https = https;
@@ -70,8 +68,8 @@ var url_get = function(url_or_options, callback, pre_callback) {
 
         update_cookies(resp.headers['set-cookie']);
 
-        var res = resp;
-        var body = '';
+        let res = resp;
+        let body = '';
         resp.on('data', function(chunk) {
             return body += chunk;
         });
@@ -88,17 +86,17 @@ var url_get = function(url_or_options, callback, pre_callback) {
     });
 };
 
-var url_post = function(options, form, callback) {
-    var http_or_https = http;
+let url_post = function(options, form, callback) {
+    let http_or_https = http;
 
     if( ((typeof options === 'object') && (options.protocol === 'https:')) )
         http_or_https = https;
 
-    var postData = querystring.stringify(form);
+    let postData = querystring.stringify(form);
     if(typeof options.headers !== 'object') options.headers = {};
     options.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
     options.headers['Content-Length'] = Buffer.byteLength(postData);
-    options.headers['Cookie'] = get_cookies_string();
+    options.headers.Cookie = get_cookies_string();
     options.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0';
     if(process.env.DEBUG) {
         console.log(options.headers);
@@ -109,9 +107,9 @@ var url_post = function(options, form, callback) {
 
         });
     }
-    var req = http_or_https.request(options, function(resp) {
-        var res = resp;
-        var body = '';
+    let req = http_or_https.request(options, function(resp) {
+        let res = resp;
+        let body = '';
         resp.on('data', function(chunk) {
             return body += chunk;
         });
@@ -130,8 +128,8 @@ var url_post = function(options, form, callback) {
     return req.end();
 };
 
-var http_request = function(options, params, callback) {
-    var append, aurl, body, client, data, query, req;
+let http_request = function(options, params, callback) {
+    let append, aurl, body, client, data, query, req;
     aurl = URL.parse(options.url);
     options.host = aurl.host;
     options.path = aurl.path;
@@ -182,8 +180,8 @@ var http_request = function(options, params, callback) {
     return req.end();
 };
 
-var handle_resp_body = function(body, options, callback) {
-    var ret = null;
+let handle_resp_body = function(body, options, callback) {
+    let ret = null;
     try {
         ret = JSON.parse(body);
     } catch (err) {
@@ -193,19 +191,19 @@ var handle_resp_body = function(body, options, callback) {
     return callback(ret, null);
 };
 
-var http_get = function(url, params, callback) {
+let http_get = function(url, params, callback) {
     if (!callback) {
         callback = params;
         params = null;
     }
-    var options = {
+    let options = {
         method: 'GET',
         url: url
     };
     return http_request(options, params, callback);
 };
 
-var http_post = function(options, body, callback) {
+let http_post = function(options, body, callback) {
     options.method = 'POST';
     return http_request(options, body, callback);
 };
