@@ -17,6 +17,7 @@ let QQ = module.exports = function () {
     this.nickname = '';
 };
 
+//登录QQ
 QQ.prototype.Login = function (cb) {
     //检查是否有缓存
     file.exists('./cookie.data', function (isExist) {

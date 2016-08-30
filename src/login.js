@@ -9,7 +9,7 @@ function sleep(milliSeconds) {
     while (new Date().getTime() < startTime + milliSeconds);
 }
 
-//获取二维码
+//无cookie登陆
 exports.Login = function (callback) {
     let self = this;
     let url = "https://ssl.ptlogin2.qq.com/ptqrshow?appid=501004106&e=0&l=M&s=5&d=72&v=4&t=" + Math.random();
@@ -23,6 +23,7 @@ exports.Login = function (callback) {
     });
 };
 
+//有cookie登录
 exports._Login = function (cookie, callback) {
     let self = this;
     log.info('自动登录...');
